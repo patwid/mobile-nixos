@@ -7,6 +7,7 @@ in
     # Misc. tools.
     # Keep sorted.
     adbd = callPackage ./adbd { };
+    bootmac = callPackage ./bootmac { };
     android-headers = callPackage ./android-headers { };
     dtbTool = callPackage ./dtbtool { };
     dtbTool-exynos = callPackage ./dtbtool-exynos { };
