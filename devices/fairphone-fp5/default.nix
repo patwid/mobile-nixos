@@ -82,6 +82,8 @@
   };
 
   mobile.quirks.qualcomm.qcm6490-modem.enable = true;
+  mobile.quirks.bootmac.enable = true;
+  mobile.quirks.resize-rootfs.enable = true;
 
   boot.kernelParams = [
     "console=ttyMSM0,115200n8"
