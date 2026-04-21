@@ -25,6 +25,7 @@ in
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
+        ConditionPathExists = "!/var/lib/rootfs-resized";
       };
 
       path = with pkgs; [
@@ -59,9 +60,10 @@ in
             ;;
         esac
 
-        # Current filesystem size
-        BLOCK_COUNT=$(dumpe2fs -h "$ROOT_DEV" 2>/dev/null | awk -F: '/Block count/{gsub(/ /,"",$2); print $2}')
-        BLOCK_SIZE=$(dumpe2fs -h "$ROOT_DEV" 2>/dev/null | awk -F: '/Block size/{gsub(/ /,"",$2); print $2}')
+        # Current filesystem size (single dumpe2fs call)
+        DUMP=$(dumpe2fs -h "$ROOT_DEV" 2>/dev/null)
+        BLOCK_COUNT=$(echo "$DUMP" | awk -F: '/Block count/{gsub(/ /,"",$2); print $2}')
+        BLOCK_SIZE=$(echo "$DUMP" | awk -F: '/Block size/{gsub(/ /,"",$2); print $2}')
         if [ -z "$BLOCK_COUNT" ] || [ -z "$BLOCK_SIZE" ]; then
           echo "Error: could not determine filesystem size."
           exit 1
@@ -83,7 +85,7 @@ in
         if [ "$DIFF" -gt "$THRESHOLD" ]; then
           echo "Filesystem is smaller than partition by $DIFF bytes (threshold: $THRESHOLD). Resizing..."
           if ! resize2fs "$ROOT_DEV"; then
-            echo "resize2fs failed, will retry on next boot."
+            echo "resize2fs failed (kernel may not support online resize). Will retry on next boot."
             exit 1
           fi
           echo "Resize complete."

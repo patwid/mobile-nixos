@@ -1,11 +1,11 @@
 {
   imports = [
-    ./exynos
-    ./qualcomm
-    ./bootmac.nix
-    ./framebuffer.nix
-    ./wifi.nix
     ./audio.nix
+    ./bootmac.nix
+    ./exynos
+    ./framebuffer.nix
+    ./qualcomm
     ./resize-rootfs.nix
+    ./wifi.nix
   ];
 }

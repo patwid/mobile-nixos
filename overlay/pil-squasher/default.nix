@@ -26,6 +26,6 @@ stdenv.mkDerivation {
   doInstallCheck = true;
   installCheckPhase = ''
     # pil-squasher prints usage to stderr and exits non-zero when called without args
-    $out/bin/pil-squasher 2>&1 | grep -q "mbn output"
+    ($out/bin/pil-squasher 2>&1 || true) | grep -q "mbn output"
   '';
 }

@@ -48,15 +48,17 @@ in
     };
 
     quirks.bootmac.macPrefix = mkOption {
-      type = types.str;
+      type = types.strMatching "[0-9a-fA-F]{4}";
       default = "0200";
       description = ''
-        Prefix for the generated MAC address.
+        Hex prefix (4 chars) for the generated MAC address.
+        Must use the locally administered bit (e.g. "0200") to avoid
+        collisions with IEEE-assigned OUIs.
       '';
     };
 
     quirks.bootmac.timeout = mkOption {
-      type = types.int;
+      type = types.ints.positive;
       default = 5;
       description = ''
         Timeout in seconds for waiting on the interface.
@@ -75,7 +77,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = "${pkgs.bootmac}/bin/bootmac --bluetooth-if ${cfg.bluetooth.interface} --prefix ${cfg.macPrefix}";
+          ExecStart = "${pkgs.bootmac}/bin/bootmac --bluetooth-if ${lib.escapeShellArg cfg.bluetooth.interface} --prefix ${lib.escapeShellArg cfg.macPrefix}";
         };
         environment = {
           BT_TIMEOUT = toString cfg.timeout;
@@ -91,7 +93,7 @@ in
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = "${pkgs.bootmac}/bin/bootmac --wlan-if ${cfg.wifi.interface} --prefix ${cfg.macPrefix}";
+          ExecStart = "${pkgs.bootmac}/bin/bootmac --wlan-if ${lib.escapeShellArg cfg.wifi.interface} --prefix ${lib.escapeShellArg cfg.macPrefix}";
         };
         environment = {
           WLAN_TIMEOUT = toString cfg.timeout;
