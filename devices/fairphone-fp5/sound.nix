@@ -32,18 +32,18 @@
   # The q6asm-dai driver advertises S32 format; without this rule,
   # PipeWire may negotiate S16LE which won't work with the AW88261
   # amplifiers that require 32-bit samples.
-  environment.etc."wireplumber/main.lua.d/52-fairphone-fp5.lua".text = ''
-    rule = {
-      matches = {
-        {
-          { "node.name", "matches", "alsa_output.*" },
-        },
-      },
-      apply_properties = {
-        ["audio.format"] = "S32LE",
-      },
-    }
-
-    table.insert(alsa_monitor.rules, rule)
+  environment.etc."wireplumber/wireplumber.conf.d/52-fairphone-fp5.conf".text = ''
+    monitor.alsa.rules = [
+      {
+        matches = [
+          { node.name = "~alsa_output.*" }
+        ]
+        actions = {
+          update-props = {
+            audio.format = S32LE
+          }
+        }
+      }
+    ]
   '';
 }
