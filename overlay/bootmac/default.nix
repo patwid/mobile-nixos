@@ -11,7 +11,7 @@
 , util-linux
 }:
 
-stdenv.mkDerivation rec {
+stdenv.mkDerivation (finalAttrs: {
   pname = "bootmac";
   version = "0.7.0";
 
@@ -19,7 +19,7 @@ stdenv.mkDerivation rec {
     domain = "gitlab.postmarketos.org";
     owner = "postmarketOS";
     repo = "bootmac";
-    rev = "v${version}";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-HMXre5oyVhit+nFJlqTiZtZi+GWjn5++2Js/JjqJWus=";
   };
 
@@ -46,4 +46,4 @@ stdenv.mkDerivation rec {
     homepage = "https://gitlab.postmarketos.org/postmarketOS/bootmac";
     license = licenses.gpl3Plus;
   };
-}
+})

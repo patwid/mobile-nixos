@@ -73,7 +73,10 @@ in
         THRESHOLD=$((PART_SIZE / 100))
         if [ "$DIFF" -gt "$THRESHOLD" ]; then
           echo "Filesystem is smaller than partition by $DIFF bytes (threshold: $THRESHOLD). Resizing..."
-          resize2fs "$ROOT_DEV"
+          if ! resize2fs "$ROOT_DEV"; then
+            echo "resize2fs failed, will retry on next boot."
+            exit 1
+          fi
           echo "Resize complete."
         else
           echo "Filesystem already fills the partition (difference: $DIFF bytes). No resize needed."

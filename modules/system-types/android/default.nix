@@ -155,9 +155,9 @@ in
         };
 
         header_version = lib.mkOption {
-          type = types.str;
+          type = types.enum [ "0" "1" "2" ];
           default = "0";
-          description = "Boot image header version to pass to mkbootimg (0, 1, 2, etc.)";
+          description = "Boot image header version to pass to mkbootimg";
           internal = true;
         };
 
