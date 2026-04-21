@@ -30,6 +30,13 @@ let
     cfg.sdm845-modem.enable
     cfg.qcm6490-modem.enable
   ];
+
+  # QCM6490 (and newer) kernels provide QRTR namespace natively;
+  # older SoCs need the userspace qrtr-ns daemon.
+  needsQrtrNs = any id [
+    cfg.sdm845-modem.enable
+    cfg.sc7180-modem.enable
+  ];
 in
 {
   options.mobile = {
@@ -100,8 +107,8 @@ in
     systemd.services = {
       rmtfs = {
         wantedBy = [ "multi-user.target" ];
-        requires = [ "qrtr-ns.service" ];
-        after = [ "qrtr-ns.service" ];
+        requires = optional needsQrtrNs "qrtr-ns.service";
+        after = optional needsQrtrNs "qrtr-ns.service";
         serviceConfig = {
           # https://github.com/andersson/rmtfs/blob/7a5ae7e0a57be3e09e0256b51b9075ee6b860322/rmtfs.c#L507-L541
           ExecStart = "${pkgs.rmtfs}/bin/rmtfs -s -r ${if rmtfsReadsPartition then "-P" else "-o /run/current-system/sw/share/uncompressed-firmware/rmtfs"}";
@@ -109,7 +116,7 @@ in
           RestartSec = "1";
         };
       };
-      qrtr-ns = {
+      qrtr-ns = mkIf needsQrtrNs {
         serviceConfig = {
           ExecStart = "${pkgs.qrtr}/bin/qrtr-ns -f 1";
           Restart = "always";
@@ -117,8 +124,8 @@ in
       };
       tqftpserv = {
         wantedBy = [ "multi-user.target" ];
-        requires = [ "qrtr-ns.service" ];
-        after = [ "qrtr-ns.service" ];
+        requires = optional needsQrtrNs "qrtr-ns.service";
+        after = optional needsQrtrNs "qrtr-ns.service";
         serviceConfig = {
           ExecStart = "${pkgs.tqftpserv}/bin/tqftpserv";
           Restart = "always";
@@ -126,8 +133,8 @@ in
       };
       pd-mapper = mkIf withPDMapper {
         wantedBy = [ "multi-user.target" ];
-        requires = [ "qrtr-ns.service" ];
-        after = [ "qrtr-ns.service" ];
+        requires = optional needsQrtrNs "qrtr-ns.service";
+        after = optional needsQrtrNs "qrtr-ns.service";
         serviceConfig = {
           ExecStart = "${pkgs.pd-mapper}/bin/pd-mapper";
           Restart = "always";

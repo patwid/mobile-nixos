@@ -1,70 +1,88 @@
 { lib
 , fetchFromGitHub
-, runCommand
+, pil-squasher
+, findutils
+, stdenv
 }:
 
-let
+stdenv.mkDerivation {
+  pname = "fairphone-fp5-firmware";
+  version = "unstable-2026-01-09";
+
   src = fetchFromGitHub {
     owner = "FairBlobs";
     repo = "FP5-firmware";
     rev = "a4908f548e6f88965e78b1478af1751b6a854fc9";
     hash = lib.fakeHash;
   };
-in
-runCommand "fairphone-fp5-firmware" {
+
   meta.license = lib.licenses.unfreeRedistributable;
-} ''
-  fwdir=$out/lib/firmware
 
-  # GPU (Adreno 643 / a660)
-  mkdir -p $fwdir/qcom/qcm6490
-  cp ${src}/a660_zap.mbn $fwdir/qcom/qcm6490/
+  nativeBuildInputs = [ pil-squasher findutils ];
 
-  # Audio DSP
-  for f in ${src}/adsp*; do
-    cp $f $fwdir/qcom/qcm6490/
-  done
+  buildPhase = ''
+    runHook preBuild
 
-  # Compute DSP
-  for f in ${src}/cdsp*; do
-    cp $f $fwdir/qcom/qcm6490/
-  done
+    # Convert split Qualcomm firmware (.mdt + .bXX) to monolithic .mbn format
+    # that the mainline Linux kernel expects.
+    find . -name "*.mdt" -type f | while read -r mdtfile; do
+      echo "Squashing: $mdtfile"
+      pil-squasher "''${mdtfile%.mdt}.mbn" "$mdtfile"
+    done
 
-  # Modem
-  for f in ${src}/modem*; do
-    cp $f $fwdir/qcom/qcm6490/
-  done
+    runHook postBuild
+  '';
 
-  # WiFi Processor Subsystem
-  for f in ${src}/wpss*; do
-    cp $f $fwdir/qcom/qcm6490/
-  done
+  installPhase = ''
+    runHook preInstall
 
-  # IPA (Internet Protocol Accelerator)
-  for f in ${src}/yupik_ipa_fws*; do
-    cp $f $fwdir/qcom/qcm6490/
-  done
+    fwdir=$out/lib/firmware
 
-  # VPU
-  cp ${src}/vpu20_1v.mbn $fwdir/qcom/qcm6490/
+    # GPU, DSP, modem, WiFi firmware — path must match the kernel DTS
+    mkdir -p $fwdir/qcom/qcm6490/fairphone5
+    install -Dm644 -t $fwdir/qcom/qcm6490/fairphone5 \
+      a660_zap.mbn \
+      adsp.mbn \
+      cdsp.mbn \
+      modem.mbn \
+      wpss.mbn
 
-  # Battery manager
-  cp ${src}/battmgr.jsn $fwdir/qcom/qcm6490/
+    # JSON config files
+    install -Dm644 -t $fwdir/qcom/qcm6490/fairphone5 \
+      adspr.jsn \
+      adsps.jsn \
+      adspua.jsn \
+      battmgr.jsn \
+      cdspr.jsn \
+      modemr.jsn
 
-  # Bluetooth
-  mkdir -p $fwdir/qca
-  cp ${src}/msbtfw11.mbn $fwdir/qca/
-  cp ${src}/msnv11.bin $fwdir/qca/
+    # IPA firmware (renamed for kernel compatibility)
+    install -Dm644 yupik_ipa_fws.mbn \
+      $fwdir/qcom/qcm6490/fairphone5/ipa_fws.mbn
 
-  # Audio amplifier
-  mkdir -p $fwdir
-  cp ${src}/aw882xx_acf.bin $fwdir/
+    # Venus video firmware (renamed for kernel compatibility)
+    install -Dm644 vpu20_1v.mbn \
+      $fwdir/qcom/qcm6490/fairphone5/venus.mbn
 
-  # Hexagon filesystem
-  mkdir -p $fwdir/qcom/qcm6490/hexagonfs
-  cp -r ${src}/hexagonfs/* $fwdir/qcom/qcm6490/hexagonfs/
+    # Bluetooth firmware
+    mkdir -p $fwdir/qca
+    install -Dm644 -t $fwdir/qca \
+      msbtfw11.mbn \
+      msnv11.bin
 
-  # Modem PR (provisioning)
-  mkdir -p $fwdir/qcom/qcm6490/modem_pr
-  cp -r ${src}/modem_pr/* $fwdir/qcom/qcm6490/modem_pr/
-''
+    # Audio amplifier firmware
+    install -Dm644 aw882xx_acf.bin $fwdir/aw882xx_acf.bin
+
+    # Modem provisioning data
+    cp -r modem_pr $fwdir/qcom/qcm6490/fairphone5/
+    find $fwdir/qcom/qcm6490/fairphone5/modem_pr -type f -exec chmod 0644 {} \;
+
+    # HexagonFS (sensors and socinfo)
+    mkdir -p $out/usr/share/qcom/qcm6490/Fairphone/fp5
+    cp -r hexagonfs/sensors $out/usr/share/qcom/qcm6490/Fairphone/fp5/
+    cp -r hexagonfs/socinfo $out/usr/share/qcom/qcm6490/Fairphone/fp5/
+    find $out/usr/share/qcom/qcm6490/Fairphone/fp5 -type f -exec chmod 0644 {} \;
+
+    runHook postInstall
+  '';
+}
