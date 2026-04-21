@@ -45,6 +45,9 @@ pkgs.runCommand name {
     --ramdisk_offset ${bootimg.flash.offset_ramdisk} \
     --tags_offset    ${bootimg.flash.offset_tags   } \
     --pagesize       ${bootimg.flash.pagesize      } \
+    ${optionalString (bootimg.header_version != "0") "--header_version ${bootimg.header_version}"} \
+    ${optionalString (bootimg.dtb != null) "--dtb ${bootimg.dtb}"} \
+    ${optionalString (bootimg.dtb != null) "--dtb_offset ${bootimg.dtb_offset}"} \
     -o $out
   )
 ''

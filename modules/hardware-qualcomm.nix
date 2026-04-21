@@ -18,6 +18,7 @@ let
     cfg.qualcomm-sc7180.enable
     cfg.qualcomm-sdm660.enable
     cfg.qualcomm-sdm845.enable
+    cfg.qualcomm-qcm6490.enable
     cfg.qualcomm-sm6125.enable
     cfg.qualcomm-apq8064-1aa.enable
   ];
@@ -69,6 +70,11 @@ in
       default = false;
       description = "enable when SOC is SDM845";
     };
+    hardware.socs.qualcomm-qcm6490.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "enable when SOC is QCM6490";
+    };
     hardware.socs.qualcomm-sm6125.enable = mkOption {
       type = types.bool;
       default = false;
@@ -114,6 +120,12 @@ in
     }
     {
       mobile = mkIf cfg.qualcomm-sdm845.enable {
+        system.system = "aarch64-linux";
+        boot.boot-control.enable = mkDefault true;
+      };
+    }
+    {
+      mobile = mkIf cfg.qualcomm-qcm6490.enable {
         system.system = "aarch64-linux";
         boot.boot-control.enable = mkDefault true;
       };

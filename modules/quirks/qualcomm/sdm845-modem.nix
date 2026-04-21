@@ -13,6 +13,7 @@ let
   anyCompatible = any id [
     cfg.sdm845-modem.enable
     cfg.sc7180-modem.enable
+    cfg.qcm6490-modem.enable
   ];
 
   # Systems for which we read the partition directly.
@@ -20,12 +21,14 @@ let
   # Once we have more accrued knowledge, add a discrete option.
   rmtfsReadsPartition = any id [
     cfg.sdm845-modem.enable
+    cfg.qcm6490-modem.enable
   ];
 
   # TODO: figure out what PD mapper exactly is...
   # is it USB PD or something modem related?
   withPDMapper = any id [
     cfg.sdm845-modem.enable
+    cfg.qcm6490-modem.enable
   ];
 in
 {
@@ -42,6 +45,13 @@ in
       default = false;
       description = ''
         Enable this on a mainline-based SDM845 device for modem support
+      '';
+    };
+    quirks.qualcomm.qcm6490-modem.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Enable this on a mainline-based QCM6490 device for modem support
       '';
     };
   };
@@ -69,6 +79,7 @@ in
             ]
               ++ optional cfg.sdm845-modem.enable "/lib/firmware/qcom/sdm845"
               ++ optional cfg.sc7180-modem.enable "/lib/firmware/qcom/sc7180-trogdor"
+              ++ optional cfg.qcm6490-modem.enable "/lib/firmware/qcom/qcm6490"
             ;
           };
         } ''

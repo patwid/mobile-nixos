@@ -1,0 +1,31 @@
+#
+# Placeholder kernel configuration for Fairphone 5 (QCM6490)
+#
+# This config must be generated from a real kernel build:
+#
+#   1. Start from qcom_defconfig:
+#      make ARCH=arm64 qcom_defconfig
+#
+#   2. Use menuconfig to enable Mobile NixOS requirements:
+#      bin/menuconfig fairphone-fp5
+#
+#   3. Normalize the config:
+#      bin/kernel-normalize-config fairphone-fp5
+#
+# Key options that must be enabled for the FP5:
+#   - CONFIG_ARCH_QCOM=y
+#   - CONFIG_DRM_MSM=y (or m)
+#   - CONFIG_QCOM_* (various Qualcomm subsystem drivers)
+#   - CONFIG_USB_DWC3=y/m (USB controller)
+#   - CONFIG_PHY_QCOM_QMP=y/m
+#   - CONFIG_TYPEC=y/m (USB-C)
+#   - CONFIG_I2C_QCOM_GENI=y/m
+#   - CONFIG_SPI_QCOM_GENI=y/m
+#   - CONFIG_SERIAL_MSM=y (serial console)
+#   - CONFIG_SERIAL_MSM_CONSOLE=y
+#   - CONFIG_PINCTRL_QCM6490=y
+#   - CONFIG_QCOM_PDC=y
+#   - CONFIG_UFS_QCOM=y/m (storage)
+#
+# See postmarketOS linux-fairphone-fp5 APKBUILD for additional reference.
+#

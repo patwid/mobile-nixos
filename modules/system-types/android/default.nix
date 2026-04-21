@@ -154,6 +154,27 @@ in
           internal = true;
         };
 
+        header_version = lib.mkOption {
+          type = types.str;
+          default = "0";
+          description = "Boot image header version to pass to mkbootimg (0, 1, 2, etc.)";
+          internal = true;
+        };
+
+        dtb = lib.mkOption {
+          type = types.nullOr types.path;
+          default = null;
+          description = "Path to DTB file for boot image header v2+";
+          internal = true;
+        };
+
+        dtb_offset = lib.mkOption {
+          type = types.str;
+          default = "0x01f00000";
+          description = "DTB offset for boot image header v2+";
+          internal = true;
+        };
+
         flash = lib.attrsets.genAttrs [
           "offset_base"
           "offset_kernel"
@@ -227,6 +248,21 @@ in
           message = ''
             Device configuration erroneous: `mobile.android.appendDTB` and legacy `bootimg.dt` enabled.
               Tip: enabling `isQcdt` or `isExynosDT` on your kernel is not needed qhen using `appendDTB`.
+          '';
+        }
+        {
+          assertion = config.mobile.system.android.appendDTB == null || config.mobile.system.android.bootimg.dtb == null;
+          message = ''
+            Device configuration erroneous: both `appendDTB` and `bootimg.dtb` are set.
+              For boot image header v2+, use `bootimg.dtb` only.
+          '';
+        }
+        {
+          assertion =
+            let v = config.mobile.system.android.bootimg.header_version; in
+            v == "0" || v == "1" || config.mobile.system.android.bootimg.dtb != null;
+          message = ''
+            Boot image header version 2+ requires `bootimg.dtb` to be set.
           '';
         }
       ];
