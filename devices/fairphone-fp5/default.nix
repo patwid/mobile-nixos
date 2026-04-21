@@ -1,6 +1,10 @@
 { config, lib, pkgs, ... }:
 
 {
+  imports = [
+    ./sound.nix
+  ];
+
   mobile.device.name = "fairphone-fp5";
   mobile.device.identity = {
     name = "Fairphone 5";

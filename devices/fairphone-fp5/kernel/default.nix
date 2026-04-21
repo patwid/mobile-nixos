@@ -13,8 +13,8 @@ let
     domain = "gitlab.postmarketos.org";
     owner = "postmarketOS";
     repo = "pmaports";
-    rev = "305cddc07f3739747f0662c824e4febccf0e1e28";
-    hash = "sha256-QInrf7Sf9j+bB26bsC1hYOnWPz/n5K3WlC50cq7megQ=";
+    rev = "8e5c197c0da3e923835bca8317e59c5c546ab01a";
+    hash = lib.fakeHash;
   };
 
   configfile = stdenv.mkDerivation {
@@ -45,23 +45,15 @@ in
 # with modifications for NixOS/Mobile NixOS compatibility.
 #
 mobile-nixos.kernel-builder {
-  version = "6.17.0";
+  version = "6.19.0";
   inherit configfile;
 
   src = fetchFromGitHub {
     owner = "sc7280-mainline";
     repo = "linux";
-    rev = "v6.17.0-sc7280";
-    hash = "sha256-k6Fp5Dhy1s7Jnpc1qywHZxmkH2+OAYk1Yy8vSBSyR5k=";
+    rev = "v6.19.0-sc7280";
+    hash = lib.fakeHash;
   };
-
-  patches = [
-    # Bluetooth H4 recv corruption fix (backport from mainline, remove when
-    # sc7280-mainline updates to v6.18+)
-    ./patches/fix-h4-recv-corruption.patch
-    # HCI QCA: drop unused event during BT baudrate change on WCN6750/6855/7850
-    ./patches/hci-qca-drop-unused-event.patch
-  ];
 
   isModular = true;
   isCompressed = "gz";

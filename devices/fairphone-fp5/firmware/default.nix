@@ -70,8 +70,9 @@ stdenv.mkDerivation {
       msbtfw11.mbn \
       msnv11.bin
 
-    # Audio amplifier firmware
-    install -Dm644 aw882xx_acf.bin $fwdir/aw882xx_acf.bin
+    # Audio amplifier firmware (renamed to match v6.19+ DTS firmware-name property)
+    install -Dm644 aw882xx_acf.bin \
+      $fwdir/qcom/qcm6490/fairphone5/aw88261_acf.bin
 
     # Modem provisioning data
     cp -r modem_pr $fwdir/qcom/qcm6490/fairphone5/
