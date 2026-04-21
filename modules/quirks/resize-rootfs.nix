@@ -1,22 +1,19 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (lib) mkOption types mkIf;
+  inherit (lib) mkEnableOption mkIf;
   cfg = config.mobile.quirks.resize-rootfs;
 in
 {
   options.mobile.quirks.resize-rootfs = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Automatically expands the root filesystem to fill the entire
-        partition on first boot.
+    enable = mkEnableOption ''
+      resize-rootfs, which automatically expands the root filesystem
+      to fill the entire partition on first boot.
+      Only ext2/3/4 filesystems are supported.
 
-        This is useful for Android system type devices where a small
-        image is flashed to a large userdata partition.
-      '';
-    };
+      This is useful for Android system type devices where a small
+      image is flashed to a large userdata partition
+    '';
   };
 
   config = mkIf cfg.enable {

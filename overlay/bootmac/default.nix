@@ -45,5 +45,6 @@ stdenv.mkDerivation (finalAttrs: {
     description = "Assign deterministic MAC addresses at boot for Wi-Fi and Bluetooth";
     homepage = "https://gitlab.postmarketos.org/postmarketOS/bootmac";
     license = licenses.gpl3Plus;
+    platforms = platforms.linux;
   };
 })

@@ -64,7 +64,7 @@ in
   };
   config = mkIf (anyCompatible) {
     # Makes platform-specific firmware files available in an uncompressed form at:
-    # /run/current-system/sw/share/uncompressed-firmware/qcom/sdm845/
+    # /run/current-system/sw/share/uncompressed-firmware/qcom/<soc>/
     # This is used by userspace components unaware of the possible xz compression.
     # See also: tqftpserv and pd-mapper patches.
     environment.pathsToLink = [ "/share/uncompressed-firmware" ];
