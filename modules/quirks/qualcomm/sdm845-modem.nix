@@ -1,3 +1,7 @@
+# Qualcomm modem support for SDM845, SC7180, and QCM6490 SoC families.
+# Despite the filename, this module covers all three platforms — they share
+# the same userspace stack (rmtfs, tqftpserv, pd-mapper, qrtr) with minor
+# per-SoC differences handled via feature flags below.
 { config, lib, pkgs, options, ... }:
 
 let

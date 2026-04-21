@@ -36,7 +36,7 @@
     monitor.alsa.rules = [
       {
         matches = [
-          { node.name = "~alsa_output.*" }
+          { node.name = "~alsa_output.platform-*q6apm*" }
         ]
         actions = {
           update-props = {

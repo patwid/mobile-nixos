@@ -15,6 +15,7 @@ in
       enable = mkOption {
         type = types.bool;
         default = cfg.enable;
+        defaultText = lib.literalExpression "config.mobile.quirks.bootmac.enable";
         description = ''
           Whether to assign a deterministic Bluetooth MAC address at boot.
         '';
@@ -32,6 +33,7 @@ in
       enable = mkOption {
         type = types.bool;
         default = cfg.enable;
+        defaultText = lib.literalExpression "config.mobile.quirks.bootmac.enable";
         description = ''
           Whether to assign a deterministic Wi-Fi MAC address at boot.
         '';

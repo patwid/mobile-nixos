@@ -75,13 +75,13 @@ stdenv.mkDerivation {
       $fwdir/qcom/qcm6490/fairphone5/aw88261_acf.bin
 
     # Modem provisioning data
-    cp -r modem_pr $fwdir/qcom/qcm6490/fairphone5/
+    cp -r --no-preserve=mode modem_pr $fwdir/qcom/qcm6490/fairphone5/
     find $fwdir/qcom/qcm6490/fairphone5/modem_pr -type f -exec chmod 0644 {} \;
 
     # HexagonFS (sensors and socinfo)
     mkdir -p $out/usr/share/qcom/qcm6490/Fairphone/fp5
-    cp -r hexagonfs/sensors $out/usr/share/qcom/qcm6490/Fairphone/fp5/
-    cp -r hexagonfs/socinfo $out/usr/share/qcom/qcm6490/Fairphone/fp5/
+    cp -r --no-preserve=mode hexagonfs/sensors $out/usr/share/qcom/qcm6490/Fairphone/fp5/
+    cp -r --no-preserve=mode hexagonfs/socinfo $out/usr/share/qcom/qcm6490/Fairphone/fp5/
     find $out/usr/share/qcom/qcm6490/Fairphone/fp5 -type f -exec chmod 0644 {} \;
 
     runHook postInstall

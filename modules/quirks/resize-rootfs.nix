@@ -34,6 +34,8 @@ in
       ];
 
       script = ''
+        set -euo pipefail
+
         # Skip if already resized
         if [ -f /var/lib/rootfs-resized ]; then
           echo "Root filesystem has already been resized, skipping."
@@ -47,11 +49,21 @@ in
         fi
         echo "Root device: $ROOT_DEV"
 
+        # Verify filesystem is ext2/3/4 before proceeding
+        ROOT_FSTYPE=$(findmnt -n -o FSTYPE /)
+        case "$ROOT_FSTYPE" in
+          ext2|ext3|ext4) ;;
+          *)
+            echo "Error: root filesystem is $ROOT_FSTYPE, not ext2/3/4. Skipping resize."
+            exit 1
+            ;;
+        esac
+
         # Current filesystem size
         BLOCK_COUNT=$(dumpe2fs -h "$ROOT_DEV" 2>/dev/null | awk -F: '/Block count/{gsub(/ /,"",$2); print $2}')
         BLOCK_SIZE=$(dumpe2fs -h "$ROOT_DEV" 2>/dev/null | awk -F: '/Block size/{gsub(/ /,"",$2); print $2}')
         if [ -z "$BLOCK_COUNT" ] || [ -z "$BLOCK_SIZE" ]; then
-          echo "Error: could not determine filesystem size. Is the root filesystem ext2/3/4?"
+          echo "Error: could not determine filesystem size."
           exit 1
         fi
         FS_SIZE=$((BLOCK_COUNT * BLOCK_SIZE))
@@ -79,9 +91,10 @@ in
           echo "Filesystem already fills the partition (difference: $DIFF bytes). No resize needed."
         fi
 
-        # Mark as done
-        mkdir -p /var/lib
-        touch /var/lib/rootfs-resized
+        # Mark as done — write to a temp file and rename for atomicity,
+        # so a crash won't leave a half-written sentinel.
+        touch /var/lib/.rootfs-resized.tmp
+        mv /var/lib/.rootfs-resized.tmp /var/lib/rootfs-resized
         echo "Marked resize as complete."
       '';
     };

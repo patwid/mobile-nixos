@@ -22,4 +22,10 @@ stdenv.mkDerivation {
   };
 
   makeFlags = [ "prefix=$(out)" ];
+
+  doInstallCheck = true;
+  installCheckPhase = ''
+    # pil-squasher prints usage to stderr and exits non-zero when called without args
+    $out/bin/pil-squasher 2>&1 | grep -q "mbn output"
+  '';
 }
